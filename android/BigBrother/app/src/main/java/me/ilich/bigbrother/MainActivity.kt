@@ -6,9 +6,16 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.ImageView
 import android.widget.TextView
+import java.io.File
+import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+import android.net.Uri
+
 
 class MainActivity : AppCompatActivity(), HttpServerService.Listener {
 
@@ -28,6 +35,7 @@ class MainActivity : AppCompatActivity(), HttpServerService.Listener {
     }
 
     lateinit var messageTextView: TextView
+    lateinit var imgMessage: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +44,7 @@ class MainActivity : AppCompatActivity(), HttpServerService.Listener {
         setContentView(R.layout.activity_main)
         bindService(Intent(this, HttpServerService::class.java), serviceConnection, BIND_AUTO_CREATE)
         messageTextView = findViewById(R.id.message) as TextView
+        imgMessage = findViewById(R.id.img_message) as ImageView
     }
 
     override fun onDestroy() {
@@ -46,6 +55,14 @@ class MainActivity : AppCompatActivity(), HttpServerService.Listener {
     override fun onNewMessage(text: String) {
         runOnUiThread {
             messageTextView.text = text
+        }
+    }
+
+    override fun onNewImage(file: File) {
+        runOnUiThread {
+            imgMessage.visibility = View.VISIBLE
+            messageTextView.visibility = View.INVISIBLE
+            imgMessage.setImageURI(Uri.fromFile(file))
         }
     }
 

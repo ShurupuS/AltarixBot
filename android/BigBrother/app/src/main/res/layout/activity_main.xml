@@ -18,4 +18,10 @@
         android:textSize="36sp"
         android:textStyle="bold" />
 
+    <ImageView
+        android:id="@+id/img_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter" />
+
 </RelativeLayout>
