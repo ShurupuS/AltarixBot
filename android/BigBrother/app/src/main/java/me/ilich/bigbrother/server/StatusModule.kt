@@ -1,4 +1,4 @@
-package me.ilich.bigbrother
+package me.ilich.bigbrother.server
 
 import android.os.Build
 import fi.iki.elonen.NanoHTTPD

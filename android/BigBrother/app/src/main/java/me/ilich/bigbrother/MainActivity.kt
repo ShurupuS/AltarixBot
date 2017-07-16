@@ -3,21 +3,30 @@ package me.ilich.bigbrother
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import io.realm.Realm
+import io.realm.Sort
+import me.ilich.bigbrother.model.RealmMessage
+import me.ilich.bigbrother.model.TextMessage
+import me.ilich.bigbrother.server.HttpServerService
+import rx.Subscription
 import java.io.File
-import android.graphics.BitmapFactory
-import android.graphics.Bitmap
-import android.net.Uri
 
 
-class MainActivity : AppCompatActivity(), HttpServerService.Listener {
+class MainActivity : AppCompatActivity() {
+
+    companion object {
+        const val TAG = "MainActivity"
+    }
 
     private var binder: HttpServerService.Binder? = null
 
@@ -29,16 +38,36 @@ class MainActivity : AppCompatActivity(), HttpServerService.Listener {
 
         override fun onServiceConnected(p0: ComponentName, p1: IBinder?) {
             binder = p1 as HttpServerService.Binder
-            binder?.listener = this@MainActivity
+        }
+
+    }
+
+
+    private val messagePresenter = object : MessagePresenter {
+
+        override fun displayText(text: String) {
+            messageTextView.visibility = View.VISIBLE
+            imgMessage.visibility = View.GONE
+            messageTextView.text = text
+        }
+
+        override fun displayImageFromFile(imageFile: File) {
+            messageTextView.visibility = View.GONE
+            imgMessage.visibility = View.VISIBLE
+            imgMessage.setImageURI(Uri.fromFile(imageFile))
         }
 
     }
 
     lateinit var messageTextView: TextView
     lateinit var imgMessage: ImageView
+    lateinit var realm: Realm
+    private var messageSubscription: Subscription? = null
+    private val defaultMessage = TextMessage("default msg")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        realm = Realm.getDefaultInstance()
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
@@ -50,20 +79,30 @@ class MainActivity : AppCompatActivity(), HttpServerService.Listener {
     override fun onDestroy() {
         super.onDestroy()
         unbindService(serviceConnection)
+        realm.close()
     }
 
-    override fun onNewMessage(text: String) {
-        runOnUiThread {
-            messageTextView.text = text
-        }
+    override fun onStart() {
+        super.onStart()
+        messageSubscription = realm.where(RealmMessage::class.java)
+                .findAllSortedAsync("publishAt", Sort.DESCENDING)
+                .asObservable()
+                .map { realmMessages ->
+                    if (realmMessages.isEmpty()) {
+                        defaultMessage
+                    } else {
+                        realmMessages.first().toMessage()
+                    }
+                }
+                .subscribe { message ->
+                    Log.d(TAG, "display $message")
+                    message.display(messagePresenter)
+                }
     }
 
-    override fun onNewImage(file: File) {
-        runOnUiThread {
-            imgMessage.visibility = View.VISIBLE
-            messageTextView.visibility = View.INVISIBLE
-            imgMessage.setImageURI(Uri.fromFile(file))
-        }
+    override fun onStop() {
+        super.onStop()
+        messageSubscription?.unsubscribe()
     }
 
 }

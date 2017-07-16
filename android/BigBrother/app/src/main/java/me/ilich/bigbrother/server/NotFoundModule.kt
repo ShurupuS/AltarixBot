@@ -1,4 +1,4 @@
-package me.ilich.bigbrother
+package me.ilich.bigbrother.server
 
 import fi.iki.elonen.NanoHTTPD
 import java.util.*

@@ -1,4 +1,4 @@
-package me.ilich.bigbrother
+package me.ilich.bigbrother.server
 
 import android.util.Log
 import fi.iki.elonen.NanoHTTPD
@@ -8,8 +8,7 @@ class HttpServer(val callback: Callback) : NanoHTTPD(8080) {
 
     private val modules = listOf(
             StatusModule(callback),
-            UploadTextModule(callback),
-            UploadImageModule(callback)
+            PublishModule(callback)
     )
 
     override fun serve(session: IHTTPSession): Response {
@@ -19,12 +18,12 @@ class HttpServer(val callback: Callback) : NanoHTTPD(8080) {
             return module.response(session)
         } catch (th: Throwable) {
             Log.e("Sokolov", th.message, th)
-             return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT, "Error `${th.stackTrace}`")
+            return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT, "Error `${th.stackTrace}`")
         }
     }
 
     interface Callback {
-        fun onText(text: String)
+        fun onText(text: String): String
         fun onImage(file: File)
     }
 

@@ -1,9 +1,12 @@
-package me.ilich.bigbrother
+package me.ilich.bigbrother.server
 
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import io.realm.Realm
+import me.ilich.bigbrother.model.Message
+import me.ilich.bigbrother.model.RealmMessage
 import java.io.File
 import java.net.NetworkInterface
 import java.util.*
@@ -11,14 +14,23 @@ import java.util.*
 
 class HttpServerService : Service() {
 
+    private lateinit var realm: Realm
+
     private val serverCallback = object : HttpServer.Callback {
 
-        override fun onText(text: String) {
-            binder.onNewMessage(text)
+        override fun onText(text: String): String {
+            val messageId = UUID.randomUUID().toString()
+            realm.executeTransaction { realm ->
+                val m = realm.createObject(RealmMessage::class.java)
+                m.id = messageId
+                m.type = RealmMessage.TYPE_TEXT
+                m.text = text
+            }
+            return messageId
         }
 
         override fun onImage(file: File) {
-            binder.onNewImage(file)
+
         }
 
     }
@@ -30,8 +42,9 @@ class HttpServerService : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.v("Sokolov", "onCreate")
+        realm = Realm.getDefaultInstance()
 
-        server.start()
+        server.start(10000)
         val ip = getIPAddress(true)
         Log.v("Sokolov", "start on $ip")
     }
@@ -39,6 +52,7 @@ class HttpServerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.v("Sokolov", "onDestroy")
+        realm.close()
         server.stop()
     }
 
@@ -71,22 +85,6 @@ class HttpServerService : Service() {
         return ""
     }
 
-    class Binder : android.os.Binder() {
-
-        var listener: Listener? = null
-
-        fun onNewMessage(msg: String) {
-            listener?.onNewMessage(msg)
-        }
-
-        fun onNewImage(file: File) {
-            listener?.onNewImage(file)
-        }
-    }
-
-    interface Listener {
-        fun onNewMessage(text: String)
-        fun onNewImage(file: File)
-    }
+    class Binder : android.os.Binder()
 
 }
