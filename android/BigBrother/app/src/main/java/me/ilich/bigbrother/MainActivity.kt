@@ -16,7 +16,7 @@ import android.widget.TextView
 import io.realm.Realm
 import io.realm.Sort
 import me.ilich.bigbrother.model.RealmMessage
-import me.ilich.bigbrother.model.TextMessage
+import me.ilich.bigbrother.model.StubMessage
 import me.ilich.bigbrother.server.HttpServerService
 import rx.Subscription
 import java.io.File
@@ -45,25 +45,35 @@ class MainActivity : AppCompatActivity() {
 
     private val messagePresenter = object : MessagePresenter {
 
+        override fun displayTextWithClarification(text: String) {
+            textMessage.visibility = View.VISIBLE
+            imageMessage.visibility = View.GONE
+            textMessage.text = text
+            clarification.visibility = View.VISIBLE
+        }
+
         override fun displayText(text: String) {
-            messageTextView.visibility = View.VISIBLE
-            imgMessage.visibility = View.GONE
-            messageTextView.text = text
+            textMessage.visibility = View.VISIBLE
+            imageMessage.visibility = View.GONE
+            textMessage.text = text
+            clarification.visibility = View.GONE
         }
 
         override fun displayImageFromFile(imageFile: File) {
-            messageTextView.visibility = View.GONE
-            imgMessage.visibility = View.VISIBLE
-            imgMessage.setImageURI(Uri.fromFile(imageFile))
+            textMessage.visibility = View.GONE
+            imageMessage.visibility = View.VISIBLE
+            imageMessage.setImageURI(Uri.fromFile(imageFile))
+            clarification.visibility = View.VISIBLE
         }
 
     }
 
-    lateinit var messageTextView: TextView
-    lateinit var imgMessage: ImageView
+    lateinit var textMessage: TextView
+    lateinit var imageMessage: ImageView
+    lateinit var clarification: TextView
+
     lateinit var realm: Realm
     private var messageSubscription: Subscription? = null
-    private val defaultMessage = TextMessage("default msg")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,8 +82,9 @@ class MainActivity : AppCompatActivity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
         bindService(Intent(this, HttpServerService::class.java), serviceConnection, BIND_AUTO_CREATE)
-        messageTextView = findViewById(R.id.message) as TextView
-        imgMessage = findViewById(R.id.img_message) as ImageView
+        textMessage = findViewById(R.id.message_text) as TextView
+        imageMessage = findViewById(R.id.message_image) as ImageView
+        clarification = findViewById(R.id.clarification) as TextView
     }
 
     override fun onDestroy() {
@@ -85,14 +96,11 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         messageSubscription = realm.where(RealmMessage::class.java)
-                .findAllSortedAsync("publishAt", Sort.DESCENDING)
+                .equalTo("status", RealmMessage.STATUS_VISIBLE)
+                .findAllSortedAsync("showAt", Sort.DESCENDING)
                 .asObservable()
                 .map { realmMessages ->
-                    if (realmMessages.isEmpty()) {
-                        defaultMessage
-                    } else {
-                        realmMessages.first().toMessage()
-                    }
+                    realmMessages?.firstOrNull()?.toMessage() ?: StubMessage()
                 }
                 .subscribe { message ->
                     Log.d(TAG, "display $message")

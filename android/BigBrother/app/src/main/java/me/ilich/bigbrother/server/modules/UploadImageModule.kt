@@ -1,6 +1,7 @@
-package me.ilich.bigbrother.server
+package me.ilich.bigbrother.server.modules
 
 import fi.iki.elonen.NanoHTTPD
+import me.ilich.bigbrother.server.HttpServer
 
 class UploadImageModule(callback: HttpServer.Callback) : Module(callback) {
 

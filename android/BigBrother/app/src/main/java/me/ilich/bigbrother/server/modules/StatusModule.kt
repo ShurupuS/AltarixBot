@@ -1,7 +1,7 @@
-package me.ilich.bigbrother.server
+package me.ilich.bigbrother.server.modules
 
-import android.os.Build
 import fi.iki.elonen.NanoHTTPD
+import me.ilich.bigbrother.server.HttpServer
 import java.util.*
 
 class StatusModule(callback: HttpServer.Callback) : Module(callback) {
@@ -12,7 +12,10 @@ class StatusModule(callback: HttpServer.Callback) : Module(callback) {
     override fun response(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val files = HashMap<String, String>()
         session.parseBody(files)
-        return NanoHTTPD.newFixedLengthResponse("${Build.MODEL} here, ${Date()}")
+        val allMessages = callback.allMessages()
+        val responseJson = Status.Response(allMessages.map { Status.Response.Message(it.id, it.status) })
+        val s = callback.parser.toJson(responseJson, Status.Response::class.java)
+        return NanoHTTPD.newFixedLengthResponse(s)
     }
 
 }

@@ -2,10 +2,10 @@ package me.ilich.bigbrother.model
 
 import me.ilich.bigbrother.MessagePresenter
 
-class TextMessage(id: String, val text: String, status: String) : Message(id, status) {
+class StubMessage : Message("stub", "") {
 
     override fun display(presenter: MessagePresenter) {
-        presenter.displayTextWithClarification(text)
+        presenter.displayText("@AltarixBot")
     }
 
 }

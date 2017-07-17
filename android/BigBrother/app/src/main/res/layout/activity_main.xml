@@ -3,25 +3,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context="me.ilich.bigbrother.MainActivity">
 
     <TextView
-        android:id="@+id/message"
+        android:id="@+id/message_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:ellipsize="marquee"
         android:fontFamily="sans-serif"
+        android:maxLines="3"
         android:text="Hello World!"
         android:textAlignment="center"
-        android:textColor="@android:color/holo_blue_dark"
-        android:textSize="36sp"
-        android:textStyle="bold" />
+        android:textColor="@color/altarix_blue"
+        android:textSize="42sp"
+        android:textStyle="bold"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent scelerisque turpis nec est rutrum imperdiet. Aliquam quis magna non dui tincidunt varius. Integer porta interdum neque et congue. Nullam varius ligula auctor dapibus lobortis. Curabitur sit amet dolor non ante eleifend sodales. In id aliquam nunc. Cras non ullamcorper dolor. Aliquam sed mollis mi. Vivamus in ex ultricies, fermentum nisl vel, finibus nunc. Etiam mauris velit, luctus viverra tempus eu, pulvinar eget nunc. Pellentesque mollis, diam id aliquet aliquam, lorem ipsum rutrum massa, nec porta ex ipsum eget dui. Maecenas in dictum metus. Duis euismod metus risus, et aliquam nisi tempus ac. Ut lacinia dictum enim, at vehicula ligula fringilla in. Praesent eget nibh a neque aliquam laoreet." />
 
     <ImageView
-        android:id="@+id/img_message"
+        android:id="@+id/message_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/clarification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:text="\@AltarixBot"
+        android:textColor="@color/altarix_blue"
+        android:textSize="18sp"
+        tools:text="\@AltarixBot" />
 
 </RelativeLayout>
