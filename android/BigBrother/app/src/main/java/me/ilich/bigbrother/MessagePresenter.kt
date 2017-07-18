@@ -4,6 +4,6 @@ import java.io.File
 
 interface MessagePresenter {
     fun displayText(text: String)
-    fun displayImageFromFile(imageFile: File)
-    fun displayTextWithClarification(text: String)
+    fun displayImageFromFile(imageFile: File, userName: String?)
+    fun displayTextWithClarification(text: String, userName: String?)
 }

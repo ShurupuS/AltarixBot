@@ -12,7 +12,8 @@ open class RealmMessage(
         open var type: String = TYPE_TEXT,
         open var status: String = STATUS_PUBLISHED,
         open var text: String? = null,
-        open var imageFileName: String? = null
+        open var imageFileName: String? = null,
+        open var userName: String? = null
 ) : RealmObject() {
 
     companion object {
@@ -25,8 +26,8 @@ open class RealmMessage(
 
     fun toMessage(): Message =
             when (type) {
-                TYPE_TEXT -> TextMessage(id, text ?: "", status)
-                TYPE_IMAGE -> ImageMessage(id, File(imageFileName), status)
+                TYPE_TEXT -> TextMessage(id, text ?: "", status, userName)
+                TYPE_IMAGE -> ImageMessage(id, File(imageFileName), status, userName)
                 else -> UnknownMessage()
             }
 

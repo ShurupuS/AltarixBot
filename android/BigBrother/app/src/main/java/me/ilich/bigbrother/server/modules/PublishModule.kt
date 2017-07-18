@@ -11,11 +11,12 @@ class PublishModule(callback: HttpServer.Callback) : Module(callback) {
     override fun response(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val files = HashMap<String, String>()
         session.parseBody(files)
+        val userName = session.parameters["user_name"]?.first()
         val text = session.parameters["text"]?.first()
         val imageUrl = session.parameters["image_url"]?.first()
         val response = when {
             text != null && imageUrl == null -> {
-                val message = callback.onText(text)
+                val message = callback.onText(text, userName)
                 NanoHTTPD.newFixedLengthResponse("ok ${message.id}")
             }
             text == null && imageUrl != null -> {

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import android.view.Window
@@ -45,29 +46,35 @@ class MainActivity : AppCompatActivity() {
 
     private val messagePresenter = object : MessagePresenter {
 
-        override fun displayTextWithClarification(text: String) {
+        override fun displayTextWithClarification(text: String, userName: String?) {
+            userNameTextView.visibility = View.VISIBLE
             textMessage.visibility = View.VISIBLE
             imageMessage.visibility = View.GONE
-            textMessage.text = text
             clarification.visibility = View.VISIBLE
+            userNameTextView.text = userName ?: getString(R.string.user_name_anonymous)
+            textMessage.text = text
         }
 
         override fun displayText(text: String) {
+            userNameTextView.visibility = View.GONE
             textMessage.visibility = View.VISIBLE
             imageMessage.visibility = View.GONE
-            textMessage.text = text
             clarification.visibility = View.GONE
+            textMessage.text = text
         }
 
-        override fun displayImageFromFile(imageFile: File) {
+        override fun displayImageFromFile(imageFile: File, userName: String?) {
+            userNameTextView.visibility = View.GONE
             textMessage.visibility = View.GONE
             imageMessage.visibility = View.VISIBLE
-            imageMessage.setImageURI(Uri.fromFile(imageFile))
             clarification.visibility = View.VISIBLE
+            userNameTextView.text = userName ?: getString(R.string.user_name_anonymous)
+            imageMessage.setImageURI(Uri.fromFile(imageFile))
         }
 
     }
 
+    lateinit var userNameTextView: TextView
     lateinit var textMessage: TextView
     lateinit var imageMessage: ImageView
     lateinit var clarification: TextView
@@ -82,9 +89,11 @@ class MainActivity : AppCompatActivity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
         bindService(Intent(this, HttpServerService::class.java), serviceConnection, BIND_AUTO_CREATE)
+        userNameTextView = findViewById(R.id.message_user) as TextView
         textMessage = findViewById(R.id.message_text) as TextView
         imageMessage = findViewById(R.id.message_image) as ImageView
         clarification = findViewById(R.id.clarification) as TextView
+        textMessage.movementMethod = ScrollingMovementMethod()
     }
 
     override fun onDestroy() {

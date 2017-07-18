@@ -49,7 +49,7 @@ class HttpServerService : Service() {
             return result!!
         }
 
-        override fun onText(text: String): Message {
+        override fun onText(text: String, userName: String?): Message {
             var result: Message? = null
             Observable.just(Unit)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -60,6 +60,7 @@ class HttpServerService : Service() {
                             m.text = text
                             m.status = RealmMessage.STATUS_PUBLISHED
                             m.publishAt = Date()
+                            m.userName = userName
                             result = m.toMessage()
                         }
                     }
@@ -68,7 +69,7 @@ class HttpServerService : Service() {
             return result!!
         }
 
-        override fun onImage(file: File) {
+        override fun onImage(file: File, userName: String?) {
 
         }
 

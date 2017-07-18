@@ -4,9 +4,9 @@ is watching you
 
 ## API
 
-GET /publish.php?text=<some_text>
+GET /publish.php?text=<some_text>&user_name=<user_name>
 
-GET /publish.php?image=<image_url>
+GET /publish.php?image=<image_url>&user_name=<user_name>
 
 {
     "timestamp": <timestamp>,

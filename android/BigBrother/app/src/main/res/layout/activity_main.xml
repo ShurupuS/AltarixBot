@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/altarix_white"
     android:padding="16dp"
     tools:context="me.ilich.bigbrother.MainActivity">
 
@@ -11,15 +12,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:ellipsize="marquee"
+        android:ellipsize="end"
         android:fontFamily="sans-serif"
-        android:maxLines="3"
+        android:maxLines="5"
         android:text="Hello World!"
         android:textAlignment="center"
         android:textColor="@color/altarix_blue"
         android:textSize="42sp"
         android:textStyle="bold"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent scelerisque turpis nec est rutrum imperdiet. Aliquam quis magna non dui tincidunt varius. Integer porta interdum neque et congue. Nullam varius ligula auctor dapibus lobortis. Curabitur sit amet dolor non ante eleifend sodales. In id aliquam nunc. Cras non ullamcorper dolor. Aliquam sed mollis mi. Vivamus in ex ultricies, fermentum nisl vel, finibus nunc. Etiam mauris velit, luctus viverra tempus eu, pulvinar eget nunc. Pellentesque mollis, diam id aliquet aliquam, lorem ipsum rutrum massa, nec porta ex ipsum eget dui. Maecenas in dictum metus. Duis euismod metus risus, et aliquam nisi tempus ac. Ut lacinia dictum enim, at vehicula ligula fringilla in. Praesent eget nibh a neque aliquam laoreet." />
+
+    <TextView
+        android:id="@+id/message_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/message_text"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="@color/altarix_blue"
+        android:textSize="20sp"
+        tools:text="Anonymous" />
 
     <ImageView
         android:id="@+id/message_image"
