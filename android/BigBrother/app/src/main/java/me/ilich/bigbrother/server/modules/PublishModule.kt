@@ -20,7 +20,8 @@ class PublishModule(callback: HttpServer.Callback) : Module(callback) {
                 NanoHTTPD.newFixedLengthResponse("ok ${message.id}")
             }
             text == null && imageUrl != null -> {
-                NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.NOT_IMPLEMENTED, NanoHTTPD.MIME_PLAINTEXT, "Image upload not implemented")
+                val message = callback.onImageUrl(imageUrl, userName)
+                NanoHTTPD.newFixedLengthResponse("ok ${message.id}")
             }
             else -> {
                 NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.BAD_REQUEST, NanoHTTPD.MIME_PLAINTEXT, "Specify `text` or `image_url` parameter, but not both.")

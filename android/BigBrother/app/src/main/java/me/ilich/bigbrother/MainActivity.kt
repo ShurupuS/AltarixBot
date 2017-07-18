@@ -14,6 +14,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import io.realm.Realm
 import io.realm.Sort
 import me.ilich.bigbrother.model.RealmMessage
@@ -45,6 +46,15 @@ class MainActivity : AppCompatActivity() {
 
 
     private val messagePresenter = object : MessagePresenter {
+
+        override fun displayImageFromUrl(url: String, userName: String?) {
+            userNameTextView.visibility = View.GONE
+            textMessage.visibility = View.GONE
+            imageMessage.visibility = View.VISIBLE
+            clarification.visibility = View.VISIBLE
+            userNameTextView.text = userName ?: getString(R.string.user_name_anonymous)
+            Glide.with(this@MainActivity).load("https://api.telegram.org/file/AAQEABN-sKEwAAS5dB0v6Qz9GZ8NAAIC/stickers/40599651539223276.webp").to(imageMessage)
+        }
 
         override fun displayTextWithClarification(text: String, userName: String?) {
             userNameTextView.visibility = View.VISIBLE

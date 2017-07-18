@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">BigBrother</string>
     <string name="user_name_anonymous">Anonymous</string>
+    <string name="bot">\@AltarixBot</string>
 </resources>

@@ -69,8 +69,28 @@ class HttpServerService : Service() {
             return result!!
         }
 
-        override fun onImage(file: File, userName: String?) {
+        override fun onImageFile(file: File, userName: String?): Message {
+            TODO("implement onImageFile")
+        }
 
+        override fun onImageUrl(imageUrl: String, userName: String?): Message {
+            var result: Message? = null
+            Observable.just(Unit)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .flatMap {
+                        realm.transactionObservable { realm ->
+                            val m = realm.createObject(RealmMessage::class.java)
+                            m.type = RealmMessage.TYPE_TEXT
+                            m.imageUrl = imageUrl
+                            m.status = RealmMessage.STATUS_PUBLISHED
+                            m.publishAt = Date()
+                            m.userName = userName
+                            result = m.toMessage()
+                        }
+                    }
+                    .toBlocking()
+                    .subscribe()
+            return result!!
         }
 
     }

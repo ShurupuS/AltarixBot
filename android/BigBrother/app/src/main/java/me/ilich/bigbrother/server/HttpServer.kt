@@ -32,7 +32,8 @@ class HttpServer(val callback: Callback) : NanoHTTPD(8080) {
     interface Callback {
         val parser: Gson
         fun onText(text: String, userName: String?): Message
-        fun onImage(file: File, userName: String?)
+        fun onImageFile(file: File, userName: String?): Message
+        fun onImageUrl(imageUrl: String, userName: String?): Message
         fun allMessages(): List<Message>
     }
 
