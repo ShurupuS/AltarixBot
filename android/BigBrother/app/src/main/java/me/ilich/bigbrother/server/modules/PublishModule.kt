@@ -17,11 +17,11 @@ class PublishModule(callback: HttpServer.Callback) : Module(callback) {
         val response = when {
             text != null && imageUrl == null -> {
                 val message = callback.onText(text, userName)
-                NanoHTTPD.newFixedLengthResponse("ok ${message.id}")
+                NanoHTTPD.newFixedLengthResponse("ok text ${message.id}")
             }
             text == null && imageUrl != null -> {
                 val message = callback.onImageUrl(imageUrl, userName)
-                NanoHTTPD.newFixedLengthResponse("ok ${message.id}")
+                NanoHTTPD.newFixedLengthResponse("ok image ${message.id}")
             }
             else -> {
                 NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.BAD_REQUEST, NanoHTTPD.MIME_PLAINTEXT, "Specify `text` or `image_url` parameter, but not both.")

@@ -80,7 +80,7 @@ class HttpServerService : Service() {
                     .flatMap {
                         realm.transactionObservable { realm ->
                             val m = realm.createObject(RealmMessage::class.java)
-                            m.type = RealmMessage.TYPE_TEXT
+                            m.type = RealmMessage.TYPE_IMAGE_URL
                             m.imageUrl = imageUrl
                             m.status = RealmMessage.STATUS_PUBLISHED
                             m.publishAt = Date()

@@ -53,7 +53,8 @@ class MainActivity : AppCompatActivity() {
             imageMessage.visibility = View.VISIBLE
             clarification.visibility = View.VISIBLE
             userNameTextView.text = userName ?: getString(R.string.user_name_anonymous)
-            Glide.with(this@MainActivity).load("https://api.telegram.org/file/AAQEABN-sKEwAAS5dB0v6Qz9GZ8NAAIC/stickers/40599651539223276.webp").to(imageMessage)
+            Log.v("Sokolov", "glide $url")
+            Glide.with(this@MainActivity).load(url).into(imageMessage)
         }
 
         override fun displayTextWithClarification(text: String, userName: String?) {
