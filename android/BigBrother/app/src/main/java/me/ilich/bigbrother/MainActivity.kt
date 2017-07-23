@@ -3,11 +3,9 @@ package me.ilich.bigbrother
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
-import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import android.view.Window
@@ -21,7 +19,6 @@ import me.ilich.bigbrother.model.RealmMessage
 import me.ilich.bigbrother.model.StubMessage
 import me.ilich.bigbrother.server.HttpServerService
 import rx.Subscription
-import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -47,48 +44,83 @@ class MainActivity : AppCompatActivity() {
 
     private val messagePresenter = object : MessagePresenter {
 
-        override fun displayImageFromUrl(url: String, userName: String?) {
-            userNameTextView.visibility = View.GONE
-            textMessage.visibility = View.GONE
-            imageMessage.visibility = View.VISIBLE
-            clarification.visibility = View.VISIBLE
-            userNameTextView.text = userName ?: getString(R.string.user_name_anonymous)
-            Log.v("Sokolov", "glide $url")
-            Glide.with(this@MainActivity).load(url).into(imageMessage)
+        override fun mode(mode: MessagePresenter.Mode) {
+            when (mode) {
+                MessagePresenter.Mode.TEXT -> {
+                    messageClarificationTextView.visibility = View.GONE
+                    messageTextTextView.visibility = View.VISIBLE
+                    messageImageImageView.visibility = View.GONE
+                    altarixBoxTextView.visibility = View.GONE
+
+                }
+                MessagePresenter.Mode.IMAGE -> {
+                    messageClarificationTextView.visibility = View.GONE
+                    messageTextTextView.visibility = View.GONE
+                    messageImageImageView.visibility = View.VISIBLE
+                    altarixBoxTextView.visibility = View.VISIBLE
+                }
+                MessagePresenter.Mode.CLARIFICATION -> {
+                    messageClarificationTextView.visibility = View.VISIBLE
+                    messageTextTextView.visibility = View.GONE
+                    messageImageImageView.visibility = View.GONE
+                    altarixBoxTextView.visibility = View.GONE
+                }
+            }
         }
 
-        override fun displayTextWithClarification(text: String, userName: String?) {
-            userNameTextView.visibility = View.VISIBLE
-            textMessage.visibility = View.VISIBLE
-            imageMessage.visibility = View.GONE
-            clarification.visibility = View.VISIBLE
-            userNameTextView.text = userName ?: getString(R.string.user_name_anonymous)
-            textMessage.text = text
+        override fun messageText(message: String) {
+            messageTextTextView.text = message
         }
 
-        override fun displayText(text: String) {
-            userNameTextView.visibility = View.GONE
-            textMessage.visibility = View.VISIBLE
-            imageMessage.visibility = View.GONE
-            clarification.visibility = View.GONE
-            textMessage.text = text
+        override fun messageImageUrl(imageUrl: String) {
+            Glide.with(this@MainActivity).load(imageUrl).into(messageImageImageView)
         }
 
-        override fun displayImageFromFile(imageFile: File, userName: String?) {
-            userNameTextView.visibility = View.GONE
-            textMessage.visibility = View.GONE
-            imageMessage.visibility = View.VISIBLE
-            clarification.visibility = View.VISIBLE
-            userNameTextView.text = userName ?: getString(R.string.user_name_anonymous)
-            imageMessage.setImageURI(Uri.fromFile(imageFile))
+        override fun timer(seconds: Long) {
+            timerTextView.text = "$seconds"
+        }
+
+        override fun userName(userName: List<String>) {
+            when (userName.size) {
+                0 -> {
+                    userNameCurrentTextView.visibility = View.GONE
+                    userNameNextTextView.visibility = View.GONE
+                    userNameNextNextTextView.visibility = View.GONE
+                }
+                1 -> {
+                    userNameCurrentTextView.visibility = View.VISIBLE
+                    userNameNextTextView.visibility = View.GONE
+                    userNameNextNextTextView.visibility = View.GONE
+                    userNameCurrentTextView.text = userName[0]
+                }
+                2 -> {
+                    userNameCurrentTextView.visibility = View.VISIBLE
+                    userNameNextTextView.visibility = View.VISIBLE
+                    userNameNextNextTextView.visibility = View.GONE
+                    userNameCurrentTextView.text = userName[0]
+                    userNameNextTextView.text = userName[1]
+                }
+                else -> {
+                    userNameCurrentTextView.visibility = View.VISIBLE
+                    userNameNextTextView.visibility = View.VISIBLE
+                    userNameNextNextTextView.visibility = View.VISIBLE
+                    userNameCurrentTextView.text = userName[0]
+                    userNameNextTextView.text = userName[1]
+                    userNameNextNextTextView.text = userName[2]
+                }
+            }
         }
 
     }
 
-    lateinit var userNameTextView: TextView
-    lateinit var textMessage: TextView
-    lateinit var imageMessage: ImageView
-    lateinit var clarification: TextView
+    lateinit var timerTextView: TextView
+    lateinit var userNameCurrentTextView: TextView
+    lateinit var userNameNextTextView: TextView
+    lateinit var userNameNextNextTextView: TextView
+    lateinit var messageTextTextView: TextView
+    lateinit var messageImageImageView: ImageView
+    lateinit var messageClarificationTextView: TextView
+    lateinit var altarixBoxTextView: TextView
 
     lateinit var realm: Realm
     private var messageSubscription: Subscription? = null
@@ -100,11 +132,15 @@ class MainActivity : AppCompatActivity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
         bindService(Intent(this, HttpServerService::class.java), serviceConnection, BIND_AUTO_CREATE)
-        userNameTextView = findViewById(R.id.message_user) as TextView
-        textMessage = findViewById(R.id.message_text) as TextView
-        imageMessage = findViewById(R.id.message_image) as ImageView
-        clarification = findViewById(R.id.clarification) as TextView
-        textMessage.movementMethod = ScrollingMovementMethod()
+
+        timerTextView = findViewById(R.id.timer) as TextView
+        userNameCurrentTextView = findViewById(R.id.user_name_current) as TextView
+        userNameNextTextView = findViewById(R.id.user_name_next) as TextView
+        userNameNextNextTextView = findViewById(R.id.user_name_next_next) as TextView
+        messageTextTextView = findViewById(R.id.message_text) as TextView
+        messageImageImageView = findViewById(R.id.message_image) as ImageView
+        messageClarificationTextView = findViewById(R.id.clarification) as TextView
+        altarixBoxTextView = findViewById(R.id.altarix_bot) as TextView
     }
 
     override fun onDestroy() {

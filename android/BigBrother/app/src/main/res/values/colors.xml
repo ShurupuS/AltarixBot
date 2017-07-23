@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="altarix_blue">#20AADB</color>
+    <color name="altarix_blue">#FF20AADB</color>
+    <color name="altarix_blue_75">#9920AADB</color>
+    <color name="altarix_blue_50">#8820AADB</color>
     <color name="altarix_white">#FEFEFF</color>
 </resources>
