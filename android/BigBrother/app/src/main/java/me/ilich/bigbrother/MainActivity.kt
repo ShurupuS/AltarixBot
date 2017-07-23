@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun onServiceConnected(p0: ComponentName, p1: IBinder?) {
             binder = p1 as HttpServerService.Binder
+            binder?.presenter = messagePresenter
         }
 
     }
@@ -44,22 +45,22 @@ class MainActivity : AppCompatActivity() {
 
     private val messagePresenter = object : MessagePresenter {
 
-        override fun mode(mode: MessagePresenter.Mode) {
+        override fun messageMode(mode: MessagePresenter.MessageMode) {
             when (mode) {
-                MessagePresenter.Mode.TEXT -> {
+                MessagePresenter.MessageMode.TEXT -> {
                     messageClarificationTextView.visibility = View.GONE
                     messageTextTextView.visibility = View.VISIBLE
                     messageImageImageView.visibility = View.GONE
                     altarixBoxTextView.visibility = View.GONE
 
                 }
-                MessagePresenter.Mode.IMAGE -> {
+                MessagePresenter.MessageMode.IMAGE -> {
                     messageClarificationTextView.visibility = View.GONE
                     messageTextTextView.visibility = View.GONE
                     messageImageImageView.visibility = View.VISIBLE
                     altarixBoxTextView.visibility = View.VISIBLE
                 }
-                MessagePresenter.Mode.CLARIFICATION -> {
+                MessagePresenter.MessageMode.CLARIFICATION -> {
                     messageClarificationTextView.visibility = View.VISIBLE
                     messageTextTextView.visibility = View.GONE
                     messageImageImageView.visibility = View.GONE
@@ -74,6 +75,15 @@ class MainActivity : AppCompatActivity() {
 
         override fun messageImageUrl(imageUrl: String) {
             Glide.with(this@MainActivity).load(imageUrl).into(messageImageImageView)
+        }
+
+        override fun timerMode(mode: MessagePresenter.TimerMode) {
+            when (mode) {
+                MessagePresenter.TimerMode.ON ->
+                    timerTextView.visibility = View.VISIBLE
+                MessagePresenter.TimerMode.OFF ->
+                    timerTextView.visibility = View.GONE
+            }
         }
 
         override fun timer(seconds: Long) {

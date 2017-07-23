@@ -6,8 +6,10 @@ import android.os.IBinder
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import io.realm.Case
 import io.realm.Realm
 import io.realm.Sort
+import me.ilich.bigbrother.MessagePresenter
 import me.ilich.bigbrother.model.Message
 import me.ilich.bigbrother.model.RealmMessage
 import me.ilich.bigbrother.utils.add
@@ -24,6 +26,10 @@ import java.util.concurrent.TimeUnit
 
 
 class HttpServerService : Service() {
+
+    companion object {
+        const val MESSAGE_LIFETIME_SEC = 30L
+    }
 
     private lateinit var realm: Realm
 
@@ -99,8 +105,7 @@ class HttpServerService : Service() {
     private val binder = Binder()
 
     private var healthSubscription: Subscription? = null
-    private var showMessageSubscription: Subscription? = null
-    private var hideMessageSubscription: Subscription? = null
+    private var messageProcessSubscription: Subscription? = null
 
     override fun onBind(p0: Intent?): IBinder = binder
 
@@ -116,17 +121,14 @@ class HttpServerService : Service() {
                     val ip = getIPAddress(true)
                     Log.i(TAG, "Health: $ip:${server.listeningPort} alive=`${server.isAlive}` host=`${server.hostname}` wasStarted=`${server.wasStarted()}`")
                 }
-        showMessageSubscription = Observable.just(Unit)
+        messageProcessSubscription = Observable.just(Unit)
                 .map { Date() }
-                .showNextMessage()
+                .flatMap {
+                    val obs = listOf(showNextMessage(it), hideNewMessage(it), timer(it))
+                    Observable.combineLatest(obs) { }
+                }
                 .observeOn(Schedulers.computation())
-                .repeatWithDelay(10L, TimeUnit.SECONDS)
-                .subscribe()
-        hideMessageSubscription = Observable.just(Unit)
-                .map { Date() }
-                .hideNewMessage()
-                .observeOn(Schedulers.computation())
-                .repeatWithDelay(10L, TimeUnit.SECONDS)
+                .repeatWithDelay(1L, TimeUnit.SECONDS)
                 .subscribe()
     }
 
@@ -136,20 +138,23 @@ class HttpServerService : Service() {
         realm.close()
         server.stop()
         healthSubscription?.unsubscribe()
-        showMessageSubscription?.unsubscribe()
-        hideMessageSubscription?.unsubscribe()
+        messageProcessSubscription?.unsubscribe()
     }
 
-    fun Observable<Date>.showNextMessage() =
-            observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext { Log.v(TAG, "show $it") }
-                    .flatMap { now ->
+    fun showNextMessage(now: Date) =
+            Observable.just(now)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext { Log.v(TAG, "show $now") }
+                    .flatMap {
                         realm.transactionObservable { realm ->
                             val messagesToShow = realm.where(RealmMessage::class.java)
-                                    .equalTo("status", RealmMessage.STATUS_PUBLISHED)
+                                    .equalTo("status", RealmMessage.STATUS_PUBLISHED, Case.INSENSITIVE)
                                     .findAllSorted("publishAt", Sort.ASCENDING)
+                            val visibleMessages = realm.where(RealmMessage::class.java)
+                                    .equalTo("status", RealmMessage.STATUS_VISIBLE)
+                                    .findAll()
                             Log.v(TAG, "show count=`${messagesToShow.size}`")
-                            if (messagesToShow.isNotEmpty()) {
+                            if (messagesToShow.isNotEmpty() && visibleMessages.isEmpty()) {
                                 val msg = messagesToShow.first()
                                 msg.status = RealmMessage.STATUS_VISIBLE
                                 msg.showAt = now
@@ -157,20 +162,41 @@ class HttpServerService : Service() {
                         }
                     }
 
-    fun Observable<Date>.hideNewMessage() =
-            observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext { Log.v(TAG, "hide $it") }
-                    .flatMap { now ->
+    fun hideNewMessage(now: Date) =
+            Observable.just(now)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext { Log.v(TAG, "hide $now") }
+                    .flatMap {
                         realm.transactionObservable { realm ->
                             val messagesToHide = realm.where(RealmMessage::class.java)
-                                    .equalTo("status", RealmMessage.STATUS_VISIBLE)
-                                    .lessThan("showAt", now.add(-10L, TimeUnit.SECONDS))
+                                    .equalTo("status", RealmMessage.STATUS_VISIBLE, Case.INSENSITIVE)
+                                    .lessThan("showAt", now.add(-MESSAGE_LIFETIME_SEC, TimeUnit.SECONDS))
                                     .findAllSorted("showAt", Sort.ASCENDING)
                             Log.v(TAG, "hide count=`${messagesToHide.size}`")
                             if (messagesToHide.isNotEmpty()) {
                                 val msg = messagesToHide.first()
                                 msg.status = RealmMessage.STATUS_FINISHED
                                 msg.hideAt = now
+                            }
+                        }
+                    }
+
+    fun timer(now: Date) =
+            Observable.just(now)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext {
+                        val visibleMessages = realm.where(RealmMessage::class.java)
+                                .equalTo("status", RealmMessage.STATUS_VISIBLE, Case.INSENSITIVE)
+                                .findAllSorted("showAt", Sort.ASCENDING)
+                        if (visibleMessages.isEmpty()) {
+                            binder.presenter?.timerMode(MessagePresenter.TimerMode.OFF)
+                        } else {
+                            binder.presenter?.timerMode(MessagePresenter.TimerMode.ON)
+                            val first = visibleMessages.first()
+                            first.showAt?.let {
+                                val diff = now.time - it.time
+                                val sec = MESSAGE_LIFETIME_SEC - diff / 1000L
+                                binder.presenter?.timer(sec)
                             }
                         }
                     }
@@ -205,6 +231,8 @@ class HttpServerService : Service() {
         return ""
     }
 
-    class Binder : android.os.Binder()
+    class Binder : android.os.Binder() {
+        var presenter: MessagePresenter? = null
+    }
 
 }

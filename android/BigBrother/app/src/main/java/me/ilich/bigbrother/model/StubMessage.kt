@@ -5,7 +5,7 @@ import me.ilich.bigbrother.MessagePresenter
 class StubMessage : Message("stub", "", null) {
 
     override fun display(presenter: MessagePresenter) {
-        presenter.mode(MessagePresenter.Mode.CLARIFICATION)
+        presenter.messageMode(MessagePresenter.MessageMode.CLARIFICATION)
     }
 
 }

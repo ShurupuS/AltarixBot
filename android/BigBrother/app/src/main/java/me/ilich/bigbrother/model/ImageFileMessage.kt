@@ -6,7 +6,7 @@ import java.io.File
 class ImageFileMessage(id: String, val imageFile: File, status: String, userName: String?) : Message(id, status, userName) {
 
     override fun display(presenter: MessagePresenter) {
-        presenter.mode(MessagePresenter.Mode.IMAGE)
+        presenter.messageMode(MessagePresenter.MessageMode.IMAGE)
         //TODO
     }
 

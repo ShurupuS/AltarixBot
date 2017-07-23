@@ -2,14 +2,19 @@ package me.ilich.bigbrother
 
 interface MessagePresenter {
 
-    fun mode(mode: Mode)
+    fun messageMode(mode: MessageMode)
     fun messageText(message: String)
     fun messageImageUrl(imageUrl: String)
+    fun timerMode(mode: TimerMode)
     fun timer(seconds: Long)
     fun userName(userName: List<String>)
 
-    enum class Mode {
+    enum class MessageMode {
         TEXT, IMAGE, CLARIFICATION
+    }
+
+    enum class TimerMode {
+        ON, OFF
     }
 
 }
