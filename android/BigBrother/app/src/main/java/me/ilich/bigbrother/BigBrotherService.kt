@@ -1,4 +1,4 @@
-package me.ilich.bigbrother.server
+package me.ilich.bigbrother
 
 import android.app.Service
 import android.content.Intent
@@ -9,11 +9,13 @@ import com.google.gson.GsonBuilder
 import io.realm.Case
 import io.realm.Realm
 import io.realm.Sort
-import me.ilich.bigbrother.MessagePresenter
 import me.ilich.bigbrother.model.Message
 import me.ilich.bigbrother.model.RealmMessage
+import me.ilich.bigbrother.server.HttpServer
+import me.ilich.bigbrother.server.TAG
 import me.ilich.bigbrother.utils.add
 import me.ilich.bigbrother.utils.repeatWithDelay
+import me.ilich.bigbrother.utils.retryWithDelay
 import me.ilich.bigbrother.utils.transactionObservable
 import rx.Observable
 import rx.Subscription
@@ -25,9 +27,11 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class HttpServerService : Service() {
+class BigBrotherService : Service() {
 
     companion object {
+        const val PORT = 8080
+        const val NAME = "Device1"
         const val MESSAGE_LIFETIME_SEC = 30L
     }
 
@@ -101,11 +105,12 @@ class HttpServerService : Service() {
 
     }
 
-    private val server = HttpServer(serverCallback)
+    private val server = HttpServer(serverCallback, PORT)
     private val binder = Binder()
 
     private var healthSubscription: Subscription? = null
     private var messageProcessSubscription: Subscription? = null
+    private var addressBroadcastSubscription: Subscription? = null
 
     override fun onBind(p0: Intent?): IBinder = binder
 
@@ -130,6 +135,19 @@ class HttpServerService : Service() {
                 .observeOn(Schedulers.computation())
                 .repeatWithDelay(1L, TimeUnit.SECONDS)
                 .subscribe()
+        addressBroadcastSubscription = addressBroadcast()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .doOnError {
+                    Log.e(TAG, "broadcast $it")
+                }
+                .repeatWithDelay(5L, TimeUnit.SECONDS)
+                .retryWithDelay(10L, TimeUnit.SECONDS)
+                .subscribe({
+                    Log.d(TAG, "broadcast $it")
+                }, { th ->
+                    Log.e(TAG, "broadcast", th)
+                })
     }
 
     override fun onDestroy() {
@@ -139,6 +157,7 @@ class HttpServerService : Service() {
         server.stop()
         healthSubscription?.unsubscribe()
         messageProcessSubscription?.unsubscribe()
+        addressBroadcastSubscription?.unsubscribe()
     }
 
     fun showNextMessage(now: Date) =

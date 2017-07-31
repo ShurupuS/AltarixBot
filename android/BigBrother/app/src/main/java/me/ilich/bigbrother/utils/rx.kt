@@ -9,3 +9,10 @@ fun <T> Observable<T>.repeatWithDelay(delay: Long, unit: TimeUnit) =
                 Observable.timer(delay, unit)
             }
         }
+
+fun <T> Observable<T>.retryWithDelay(delay: Long, unit: TimeUnit) =
+        retryWhen { errorObservable ->
+            errorObservable.flatMap {
+                Observable.timer(delay, unit)
+            }
+        }

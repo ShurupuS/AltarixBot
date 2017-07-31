@@ -20,7 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".server.HttpServerService" />
+        <service android:name=".BigBrotherService" />
     </application>
 
 </manifest>

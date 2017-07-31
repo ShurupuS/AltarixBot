@@ -17,7 +17,6 @@ import io.realm.Realm
 import io.realm.Sort
 import me.ilich.bigbrother.model.RealmMessage
 import me.ilich.bigbrother.model.StubMessage
-import me.ilich.bigbrother.server.HttpServerService
 import rx.Subscription
 
 
@@ -27,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         const val TAG = "MainActivity"
     }
 
-    private var binder: HttpServerService.Binder? = null
+    private var binder: BigBrotherService.Binder? = null
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -36,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onServiceConnected(p0: ComponentName, p1: IBinder?) {
-            binder = p1 as HttpServerService.Binder
+            binder = p1 as BigBrotherService.Binder
             binder?.presenter = messagePresenter
         }
 
@@ -141,7 +140,7 @@ class MainActivity : AppCompatActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
-        bindService(Intent(this, HttpServerService::class.java), serviceConnection, BIND_AUTO_CREATE)
+        bindService(Intent(this, BigBrotherService::class.java), serviceConnection, BIND_AUTO_CREATE)
 
         timerTextView = findViewById(R.id.timer) as TextView
         userNameCurrentTextView = findViewById(R.id.user_name_current) as TextView

@@ -9,7 +9,7 @@ import me.ilich.bigbrother.server.modules.PublishModule
 import me.ilich.bigbrother.server.modules.StatusModule
 import java.io.File
 
-class HttpServer(val callback: Callback) : NanoHTTPD(8080) {
+class HttpServer(val callback: Callback, port: Int) : NanoHTTPD(port) {
 
     private val modules = listOf(
             PublishModule(callback),
