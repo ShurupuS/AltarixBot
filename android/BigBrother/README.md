@@ -24,7 +24,7 @@ GET /message_status.php
     "status": <waiting|visible|past>
 }
 
-GET /make_photo.php?callback_url=<callback_url>
+GET /take_photo.php?callback_url=<callback_url>
 
 {
     "photo_id": <photo_id>

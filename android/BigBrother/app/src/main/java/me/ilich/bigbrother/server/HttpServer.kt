@@ -4,16 +4,17 @@ import android.util.Log
 import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
 import me.ilich.bigbrother.model.Message
-import me.ilich.bigbrother.server.modules.NotFoundModule
-import me.ilich.bigbrother.server.modules.PublishModule
-import me.ilich.bigbrother.server.modules.StatusModule
+import me.ilich.bigbrother.server.modules.*
 import java.io.File
+import java.io.InputStream
 
 class HttpServer(val callback: Callback, port: Int) : NanoHTTPD(port) {
 
     private val modules = listOf(
             PublishModule(callback),
-            StatusModule(callback)
+            StatusModule(callback),
+            TakePhotoModule(callback),
+            PhotoModule(callback)
     )
 
     override fun serve(session: IHTTPSession): Response {
@@ -35,6 +36,8 @@ class HttpServer(val callback: Callback, port: Int) : NanoHTTPD(port) {
         fun onImageFile(file: File, userName: String?): Message
         fun onImageUrl(imageUrl: String, userName: String?): Message
         fun allMessages(): List<Message>
+        fun takePhoto(): String
+        fun file(fileName: String): File
     }
 
 }

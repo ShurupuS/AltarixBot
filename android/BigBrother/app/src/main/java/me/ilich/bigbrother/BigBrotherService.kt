@@ -2,6 +2,7 @@ package me.ilich.bigbrother
 
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import com.google.gson.Gson
@@ -22,6 +23,7 @@ import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.io.File
+import java.io.InputStream
 import java.net.NetworkInterface
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -31,13 +33,23 @@ class BigBrotherService : Service() {
 
     companion object {
         const val PORT = 8080
-        const val NAME = "Device1"
+        val NAME = "${Build.MANUFACTURER} ${Build.MODEL}"
         const val MESSAGE_LIFETIME_SEC = 30L
     }
 
     private lateinit var realm: Realm
 
     private val serverCallback = object : HttpServer.Callback {
+
+        override fun file(fileName: String) = File(externalCacheDir, fileName)
+
+        override fun takePhoto(): String {
+            val id = UUID.randomUUID().toString()
+            val i = TakePhotoActivity.intent(this@BigBrotherService, id)
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(i)
+            return id
+        }
 
         override val parser: Gson = GsonBuilder().create()
 
