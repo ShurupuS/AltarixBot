@@ -133,6 +133,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var realm: Realm
     private var messageSubscription: Subscription? = null
+    private var namesSubscription: Subscription? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -171,11 +172,26 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "display $message")
                     message.display(messagePresenter)
                 }
+        namesSubscription = realm.where(RealmMessage::class.java)
+                .equalTo("status", RealmMessage.STATUS_PUBLISHED)
+                .or()
+                .equalTo("status", RealmMessage.STATUS_VISIBLE)
+                .findAllSortedAsync("showAt", Sort.DESCENDING, "publishAt", Sort.DESCENDING)
+                .asObservable()
+                .map { messages ->
+                    messages.map {
+                        it.toMessage().userName ?: getString(R.string.user_name_anonymous)
+                    }
+                }
+                .subscribe { userNames ->
+                    messagePresenter.userName(userNames)
+                }
     }
 
     override fun onStop() {
         super.onStop()
         messageSubscription?.unsubscribe()
+        namesSubscription?.unsubscribe()
     }
 
 }
