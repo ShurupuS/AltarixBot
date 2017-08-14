@@ -10,13 +10,13 @@
     <RelativeLayout
         android:id="@+id/container_bottom"
         android:layout_width="match_parent"
-        android:layout_height="42dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
         <TextView
             android:id="@+id/timer"
-            android:layout_width="42dp"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:gravity="center"
@@ -29,7 +29,7 @@
         <TextView
             android:id="@+id/altarix_bot"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:gravity="center"
@@ -42,7 +42,7 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_toEndOf="@id/timer"
             android:layout_toLeftOf="@id/altarix_bot"
             android:layout_toRightOf="@id/timer"
@@ -53,7 +53,7 @@
             <TextView
                 android:id="@+id/user_name_current"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:textColor="@color/altarix_blue"
                 android:textSize="20sp"
@@ -62,7 +62,7 @@
             <TextView
                 android:id="@+id/user_name_next"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:textColor="@color/altarix_blue_75"
                 android:textSize="20sp"
@@ -72,7 +72,7 @@
             <TextView
                 android:id="@+id/user_name_next_next"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:textColor="@color/altarix_blue_50"
                 android:textSize="20sp"

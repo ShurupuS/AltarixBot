@@ -4,7 +4,9 @@ is watching you
 
 ## Tasks
 
-отображение картинок, например https://api.telegram.org/file/bot418853143:AAF6fakwdn_1gQpOYmu-W7kns0fJSh-yB8k/stickers/40599651539223276.webp
+отображение картинок, например
+https://api.telegram.org/file/bot418853143:AAF6fakwdn_1gQpOYmu-W7kns0fJSh-yB8k/stickers/40599651539223276.webp
+
 
 ## API
 
