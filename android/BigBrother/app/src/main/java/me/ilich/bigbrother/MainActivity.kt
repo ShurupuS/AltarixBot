@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
                     messageClarificationTextView.visibility = View.GONE
                     messageTextTextView.visibility = View.VISIBLE
                     messageImageImageView.visibility = View.GONE
-                    altarixBoxTextView.visibility = View.GONE
+                    altarixBoxTextView.visibility = View.VISIBLE
 
                 }
                 MessagePresenter.MessageMode.IMAGE -> {
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                     messageClarificationTextView.visibility = View.VISIBLE
                     messageTextTextView.visibility = View.GONE
                     messageImageImageView.visibility = View.GONE
-                    altarixBoxTextView.visibility = View.GONE
+                    altarixBoxTextView.visibility = View.INVISIBLE
                 }
             }
         }
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
                 MessagePresenter.TimerMode.ON ->
                     timerTextView.visibility = View.VISIBLE
                 MessagePresenter.TimerMode.OFF ->
-                    timerTextView.visibility = View.GONE
+                    timerTextView.visibility = View.INVISIBLE
             }
         }
 
@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
                 .equalTo("status", RealmMessage.STATUS_PUBLISHED)
                 .or()
                 .equalTo("status", RealmMessage.STATUS_VISIBLE)
-                .findAllSortedAsync("showAt", Sort.DESCENDING, "publishAt", Sort.DESCENDING)
+                .findAllSortedAsync("publishAt", Sort.ASCENDING)
                 .asObservable()
                 .map { messages ->
                     messages.map {
